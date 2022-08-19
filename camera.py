@@ -14,6 +14,8 @@ class Camera(object):
     def __init__(self):
         self.camera = cv.VideoCapture(0)
         self.camera.set(cv.CAP_PROP_EXPOSURE, -4) 
+        self.thread = None
+        self.stop_event = Event()
         self.lock = Lock()
         
     def start(self):
@@ -21,6 +23,7 @@ class Camera(object):
         self.stop_event.clear()
         self.thread = Thread(target=self.run)
         self.thread.start()
+        return self
     
     def stop(self):
         assert self.thread is not None
@@ -39,14 +42,14 @@ class Camera(object):
             self.stop()    
         
     def run(self):
-        while not self.stop_event.wait(0.5):
-            print(f"{datetime.now()}: Capturing frame")
+        while not self.stop_event.wait(0.1):
+            #print(f"{datetime.now()}: Capturing frame")
             result, frame = self.camera.read()
             
             if result:
                 bw_frame = cv.cvtColor(frame, cv.COLOR_RGB2GRAY)
-                self.image = Image.fromarray(bw_frame)
-                print(f"{datetime.now()}: Saving image")
+                with self.lock:
+                    self.image = Image.fromarray(bw_frame)
             else:
                 raise RuntimeError("Error while capturing frame")
             

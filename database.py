@@ -1,4 +1,5 @@
-from sqlalchemy import create_engine, Engine, Column, Integer, DateTime, func
+from sqlalchemy import create_engine, Column, Integer, DateTime, func
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import declarative_base, Session
 from datetime import datetime
 
@@ -19,7 +20,9 @@ class Database(object):
         Base.metadata.create_all(self.database)
         
     def insert(self, number: int):
-        entry = Ticket(datetime.now(), number)
+        entry = Ticket(
+            time=datetime.now(), 
+            number=number)
         with Session(bind=self.database) as session:
             with session.begin():
                 session.add(entry)
@@ -37,4 +40,6 @@ class Database(object):
     def reset_ticket_number(self):
         with Session(bind=self.database) as session:
             with session.begin():
-                session.add(Ticket(datetime.now(), 1))
+                session.add(Ticket(
+                    time=datetime.now(), 
+                    number=1))
