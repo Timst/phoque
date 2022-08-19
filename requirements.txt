@@ -1,0 +1,7 @@
+click==7.1.2
+gpiozero==1.6.2
+Pillow==9.2.0
+pycups==2.0.1
+SQLAlchemy==1.4.40
+opencv-python==4.6.0.66
+numpy==1.23.2
