@@ -8,18 +8,18 @@ from printer import Printer
 from database import Database
 
 class Composer(object):
-    TEMP_FILE = "temp/temp.jpg"
+    TEMP_FILE = "/var/tmp/temp.jpg"
     NUMBER_CACHE = "cache"
     TITLE_FONT_FAMILY = "/usr/local/share/fonts/unispace bd.ttf"
     BODY_FONT_FAMILY = "/usr/local/share/fonts/unispace rg.ttf"
-    NUMBER_SIZE = 130
+    NUMBER_SIZE = 160
     
     database: Database
     number: int
     last_print_timestamp: float
     
     def __init__(self, database: Database):
-        self.number = 1
+        self.number = None
         self.database = database
         self.last_print_timestamp = None
     
@@ -32,18 +32,18 @@ class Composer(object):
             image = Image.new("L", (800, 800), 255)
             draw = ImageDraw.Draw(image)
 
-            titleFont = ImageFont.truetype(self.TITLE_FONT_FAMILY, 44)
-            yourNumberFont = ImageFont.truetype(self.BODY_FONT_FAMILY, 32)
+            titleFont = ImageFont.truetype(self.TITLE_FONT_FAMILY, 55)
+            yourNumberFont = ImageFont.truetype(self.BODY_FONT_FAMILY, 46)
             numberFont = ImageFont.truetype(self.BODY_FONT_FAMILY, self.NUMBER_SIZE)
 
-            draw.text((115, 15), "Welcome to The BROTHel", font = titleFont)
+            draw.text((30, 18), "Welcome to The BROTHel", font = titleFont)
  
             ticket_number = forced_number
             
             if forced_number is not None:
                 ticket_number = forced_number
             elif self.number is None:
-                self.number = self.database.get_latest_ticket_number()
+                self.number = self.database.get_latest_ticket_number() + 1
                 ticket_number = self.number
             else:
                 ticket_number = self.number
@@ -52,13 +52,13 @@ class Composer(object):
 
             digits = len(str(ticket_number))
             
-            draw.text((265, 590), "You are number", font=yourNumberFont)
+            draw.text((225, 590), "You are number", font=yourNumberFont)
             draw.text((390 - (digits * (self.NUMBER_SIZE/4)), 645), str(ticket_number), font=numberFont)     
             
             pic = camera.get_latest_frame()
             
             if pic is not None:
-                image.paste(pic, (80,80))
+                image.paste(pic, (80,90))
                 
                 image.save(self.TEMP_FILE)
                 logging.debug("Image saved")

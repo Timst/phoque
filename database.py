@@ -30,7 +30,7 @@ class Database(object):
     def get_latest_ticket_number(self):
         with Session(bind=self.database) as session:
             with session.begin():
-                query = session.query(func.max(Ticket.id))
+                query = session.query(Ticket).order_by(Ticket.id.desc()).limit(1).all()
                 
                 if any(query):
                     return query[0].number
