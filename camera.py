@@ -2,6 +2,7 @@ import cv2 as cv
 from PIL import Image
 from datetime import datetime
 from threading import Thread, Event, Lock
+import logging
 
 class Camera(object):
     FRAMES_TO_CAPTURE = 5
@@ -12,7 +13,7 @@ class Camera(object):
     image: Image
     
     def __init__(self):
-        self.camera = cv.VideoCapture(0)
+        self.camera = cv.VideoCapture(-1)
         self.camera.set(cv.CAP_PROP_EXPOSURE, -4) 
         self.thread = None
         self.stop_event = Event()
@@ -43,7 +44,7 @@ class Camera(object):
         
     def run(self):
         while not self.stop_event.wait(0.1):
-            #print(f"{datetime.now()}: Capturing frame")
+            logging.debug("Capturing frame")
             result, frame = self.camera.read()
             
             if result:
@@ -57,4 +58,5 @@ class Camera(object):
         assert self.thread is not None
         
         with self.lock:
+            logging.debug("Retrieving frame")
             return self.image

@@ -1,5 +1,6 @@
 import cups
 from datetime import datetime
+import logging
 
 class Printer(object):
     PRINTER = 'pos1'
@@ -9,6 +10,5 @@ class Printer(object):
         self.connection = cups.Connection()
         
     def print(self, file):
-        print(f"{datetime.now()}: Sending print")
+        logging.debug("Sending print")
         self.connection.printFile(self.PRINTER, file, "Ticket", {})
-        print(f"{datetime.now()}: Printing done")
