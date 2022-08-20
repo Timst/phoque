@@ -63,7 +63,7 @@ class Composer(object):
                 image.save(self.TEMP_FILE)
                 logging.debug("Image saved")
 
-                #printer.print(self.TEMP_FILE)
+                printer.print(self.TEMP_FILE)
                 self.increment_number()
             else:
                 logging.warning("No picture available yet")
