@@ -42,4 +42,4 @@ class Database(object):
             with session.begin():
                 session.add(Ticket(
                     time=datetime.now(), 
-                    number=1))
+                    number=0))

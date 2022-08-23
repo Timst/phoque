@@ -11,8 +11,8 @@ import logging
 
 @click.command()
 @click.option("--number", "-n", default=None, help="Override for the ticket number")
-@click.option("--restart", "-r", default=None, help="Restart from ticket number 1")
-def main(number, restart):
+@click.option("--reset", "-r", is_flag=True, help="Reset ticket count to 0")
+def main(number, reset):
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
@@ -24,23 +24,25 @@ def main(number, restart):
 
     database = Database()
     
-    if restart:
+    if reset:
+        logging.info("Resetting count")
         database.reset_ticket_number()
-    
-    comp = Composer(database)
-    
-    with Camera() as camera:
-        printer = Printer()
+    else: 
+        comp = Composer(database)
+        
+        with Camera() as camera:
+            printer = Printer()
 
-        button = Button(23)
+            button = Button(23)
 
-        def snap():
-            logging.info("Printing new ticket")
-            comp.make_ticket(number, camera, printer)
+            def snap():
+                comp.make_ticket(number, camera, printer)
 
-        button.when_released = snap
+            button.when_released = snap
 
-        pause()
+            logging.info("Initialization complete")
+
+            pause()
     
 if __name__ == '__main__':
     main()
