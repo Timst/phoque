@@ -36,7 +36,7 @@ class Composer(object):
             side_text_font = ImageFont.truetype(self.BODY_FONT_FAMILY, 40)
             number_font = ImageFont.truetype(self.BODY_FONT_FAMILY, self.NUMBER_SIZE)
 
-            draw.text((20, 18), "Welcome to The BROTHel", font = title_font)
+            draw.text((20, 18), "Welcome to Crêpiphany", font = title_font)
  
             ticket_number = forced_number
             
@@ -55,12 +55,12 @@ class Composer(object):
             draw.text((225, 590), "You are number", font=body_font)
             draw.text((390 - (digits * (self.NUMBER_SIZE/4)), 645), str(ticket_number), font=number_font)     
 
-            left_text = Image.new("L", (450, 50), 255)
+            left_text = Image.new("L", (520, 50), 255)
             left_text_draw = ImageDraw.Draw(left_text)
-            left_text_draw.text((0, 0), "2022 Waking Dreams", font=side_text_font)       
+            left_text_draw.text((0, 0), "2024 Fundraiser", font=side_text_font)       
             rotated_left_text = left_text.rotate(90, expand=True)
 
-            right_text = Image.new("L", (400, 50), 255)
+            right_text = Image.new("L", (520, 50), 255)
             right_text_draw = ImageDraw.Draw(right_text)
             formatted_time = datetime.now().strftime("%A %H:%M:%S")
             right_text_draw.text((0, 0), formatted_time, font=side_text_font)
@@ -69,7 +69,7 @@ class Composer(object):
             image.paste(rotated_left_text, (16, 97))
             image.paste(rotated_right_text, (733, 135))
             
-            pic = camera.get_latest_frame()
+            pic = camera.get_latest_image()
             
             if pic is not None:
                 image.paste(pic, (80,95))

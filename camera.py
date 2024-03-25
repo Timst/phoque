@@ -1,20 +1,22 @@
-import cv2 as cv
+import cv2
 from PIL import Image
-from datetime import datetime
 from threading import Thread, Event, Lock
 import logging
+from numpy import ndarray
 
 class Camera(object):
     FRAMES_TO_CAPTURE = 5
-    camera: cv.VideoCapture
+    camera: cv2.VideoCapture
     lock: Lock
     thread: Thread
     stop_event: Event
     image: Image
+    edited_image: Image
+    frame: ndarray
     
     def __init__(self):
-        self.camera = cv.VideoCapture(-1)
-        self.camera.set(cv.CAP_PROP_EXPOSURE, -4) 
+        self.camera = cv2.VideoCapture(-1)
+        self.camera.set(cv2.CAP_PROP_EXPOSURE, -4) 
         self.thread = None
         self.stop_event = Event()
         self.lock = Lock()
@@ -48,15 +50,29 @@ class Camera(object):
             result, frame = self.camera.read()
             
             if result:
-                bw_frame = cv.cvtColor(frame, cv.COLOR_RGB2GRAY)
-                with self.lock:
-                    self.image = Image.fromarray(bw_frame)
+                self.frame = frame
+                self.image = self.__generate_image(frame)
             else:
                 raise RuntimeError("Error while capturing frame")
             
+    def get_latest_image(self):
+        assert self.thread is not None
+        
+        with self.lock:
+            logging.debug("Retrieving image")
+            return self.edited_image
+        
     def get_latest_frame(self):
         assert self.thread is not None
         
         with self.lock:
-            logging.debug("Retrieving frame")
-            return self.image
+            logging.debug(f"Retrieving frame: {self.frame.shape}")
+            return self.frame
+        
+    def set_edited_image(self, frame):
+        self.edited_image = self.__generate_image(frame)
+        
+    def __generate_image(self, frame):
+        bw_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)               
+        with self.lock:
+            return Image.fromarray(bw_frame)
