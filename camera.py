@@ -46,7 +46,6 @@ class Camera(object):
         
     def run(self):
         while not self.stop_event.wait(0.1):
-            logging.debug("Capturing frame")
             result, frame = self.camera.read()
             
             if result:
@@ -55,24 +54,23 @@ class Camera(object):
             else:
                 raise RuntimeError("Error while capturing frame")
             
-    def get_latest_image(self):
+    def get_latest_image(self, edited: bool):
         assert self.thread is not None
         
         with self.lock:
-            logging.debug("Retrieving image")
-            return self.edited_image
+            logging.debug(f"Retrieving {'edited' if edited else ''} image")           
+            return self.edited_image if edited else self.image
         
     def get_latest_frame(self):
         assert self.thread is not None
         
         with self.lock:
-            logging.debug(f"Retrieving frame: {self.frame.shape}")
             return self.frame
         
     def set_edited_image(self, frame):
         self.edited_image = self.__generate_image(frame)
         
     def __generate_image(self, frame):
-        bw_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)               
+        bw_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         with self.lock:
             return Image.fromarray(bw_frame)
