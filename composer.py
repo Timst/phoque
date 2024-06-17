@@ -32,9 +32,9 @@ class Composer(object):
             logging.warning("Throttling call.")
         else:
             result = False
-            
+    
             self.last_print_timestamp = time.time()
-            
+
             if mode == Mode.ticket:
                 result = self.generate_ticket(forced_number, camera)
             elif mode == Mode.photo:
