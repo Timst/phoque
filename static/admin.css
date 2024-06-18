@@ -1,0 +1,65 @@
+html, body {
+    height: 100%;
+    font-family: "arial";
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 20px;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.top {
+    height: 60%;
+}
+
+.mid {
+    height: 20%;
+}
+
+.bottom {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(4, 1fr);
+    justify-content: center;
+    align-items: center;
+    height: 20%;
+}
+
+.title {
+    color: #555353;
+}
+
+.large_title {
+    font-size: 4vw;
+}
+
+.medium_title {
+    font-size: 2vw;
+}
+
+.small_title {
+    font-size: 1.5vw;
+    margin-bottom: 0.4vw;
+}
+
+.large_info {
+    font-size: 18vw;
+}
+
+.medium_info {
+    font-size: 8vw;
+}
+
+.small_info {
+    font-size: 2vw;
+}

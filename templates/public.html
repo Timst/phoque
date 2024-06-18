@@ -1,0 +1,7 @@
+<!doctype html>
+<link rel="stylesheet" href="{{ url_for('static', filename='public.css') }}">
+<script src="{{ url_for('static', filename='htmx.min.js') }}"></script>
+<div>
+    <span class="title">Current number</span>
+    <span class="number" hx-get="/latest-call" hx-trigger="every 1s"></span>
+</div>

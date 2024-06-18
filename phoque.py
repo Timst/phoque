@@ -2,7 +2,9 @@ from time import sleep
 import click
 from camera import Camera
 from database import Database
+from input import Input
 from viewfinder import Viewfinder
+from server import Server
 from printer import Printer
 from composer import Composer, Mode
 from gpiozero import Button
@@ -48,6 +50,12 @@ def main(number, reset, mode):
                 
                 display = Viewfinder(camera)
                 display.start()
+            elif print_mode == Mode.ticket:
+                server = Server(database)
+                server.start()
+                
+                input = Input(database)
+                input.start()
             
             logging.info("Initialization complete")
 

@@ -29,8 +29,8 @@ class Viewfinder(object):
             self.running = True
             
             logging.debug("Retrieving decal pictures")
-            self.halo = cv2.imread("/root/phoque/halo.png", cv2.IMREAD_UNCHANGED)
-            self.horns = cv2.imread("/root/phoque/horns.png", cv2.IMREAD_UNCHANGED)
+            self.halo = cv2.imread("/root/phoque/assets/img/halo.png", cv2.IMREAD_UNCHANGED)
+            self.horns = cv2.imread("/root/phoque/assets/img/horns.png", cv2.IMREAD_UNCHANGED)
             self.decal = self.halo
             
             self.alpha = np.full((self.HEIGHT, self.WIDTH), 128, dtype=np.uint8)
