@@ -1,0 +1,10 @@
+[MAIN]
+max-line-length=150
+
+[MESSAGES CONTROL]
+
+# Disable the message, report, category or checker with the given id(s). You
+# can either give multiple identifier separated by comma (,) or put this option
+# multiple time (only on the command line, not in the configuration file where
+# it should appear only once).
+disable=missing-final-newline,logging-fstring-interpolation,missing-class-docstring,c-extension-no-member,too-few-public-methods,no-else-return,too-many-locals

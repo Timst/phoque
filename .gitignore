@@ -2,3 +2,5 @@ phoque.db
 __pycache__/*
 temp/*
 .venv/*
+.python-version
+.vscode/*

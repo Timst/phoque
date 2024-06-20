@@ -1,5 +1,12 @@
+'''Phoque entry point'''
+
+import logging
 from time import sleep
+from signal import pause
+
 import click
+from gpiozero import Button
+
 from camera import Camera
 from database import Database
 from input import Input
@@ -7,15 +14,13 @@ from viewfinder import Viewfinder
 from server import Server
 from printer import Printer
 from composer import Composer, Mode
-from gpiozero import Button
-from signal import pause
-import logging
 
 @click.command()
 @click.option("--number", "-n", default=None, help="Override for the ticket number")
 @click.option("--reset", "-r", is_flag=True, help="Reset ticket count to 0")
 @click.option("--mode", "-m", default="ticket", type=click.Choice(["ticket", "photo"], case_sensitive=False))
 def main(number, reset, mode):
+    '''App entry point'''
     logging.basicConfig(
         level=logging.DEBUG,
         format="%(asctime)s [%(levelname)s] %(message)s",
@@ -26,14 +31,14 @@ def main(number, reset, mode):
     )
 
     database = Database()
-    
+
     if reset:
         logging.info("Resetting count")
         database.reset_ticket_number()
-    else: 
+    else:
         comp = Composer(database)
-        print_mode = Mode[mode.lower()]
-        
+        print_mode = Mode[mode.upper()]
+
         with Camera() as camera:
             printer = Printer()
 
@@ -44,22 +49,22 @@ def main(number, reset, mode):
                 comp.make_ticket(number, camera, printer, print_mode)
 
             button.when_released = snap
-            
-            if print_mode == Mode.photo:
+
+            if print_mode == Mode.PHOTO:
                 sleep(1)
-                
+
                 display = Viewfinder(camera)
                 display.start()
-            elif print_mode == Mode.ticket:
+            elif print_mode == Mode.TICKET:
                 server = Server(database)
                 server.start()
-                
-                input = Input(database)
-                input.start()
-            
+
+                input_handler = Input(database)
+                input_handler.start()
+
             logging.info("Initialization complete")
 
             pause()
-    
+
 if __name__ == '__main__':
-    main()
+    main(None, False, "TICKET")
