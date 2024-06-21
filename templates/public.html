@@ -4,4 +4,5 @@
 <div>
     <span class="title">Current number</span>
     <span class="number" hx-get="/latest-call" hx-trigger="every 1s"></span>
+    <span class="wait">Estimated wait: <span class="wait-number" hx-get="/wait" hx-trigger="every 1s" /></span>
 </div>

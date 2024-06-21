@@ -33,9 +33,10 @@ class Input:
         '''Handle keypress events'''
         if hasattr(key, "char"):
             if key.char == "q":
-                self.admin.call()
+                self.admin.call(remind=False)
             elif key.char == "d" and self.last_pressed_key != "d":
                 logging.debug("Starting reset timer...")
+                self.admin.set_resetting(True)
                 self.reset_timer = datetime.now()
 
             self.last_pressed_key = key.char
@@ -47,8 +48,10 @@ class Input:
             if key.char == "d":
                 timer = (datetime.now() - self.reset_timer).total_seconds()
                 logging.debug(f"Reset timer: {timer}")
+                self.admin.set_resetting(False)
 
                 if timer > 3:
                     logging.info("Resetting data")
+                    self.admin.reset()
 
             self.last_pressed_key = None

@@ -36,7 +36,7 @@ def main(number, reset, mode):
 
     if reset:
         logging.info("Resetting count")
-        database.reset_ticket_number()
+        database.reset()
     else:
         comp = Composer(database)
         print_mode = Mode[mode.upper()]
@@ -58,7 +58,7 @@ def main(number, reset, mode):
                 display = Viewfinder(camera)
                 display.start()
             elif print_mode == Mode.TICKET:
-                server = Server(database, admin)
+                server = Server(admin)
                 server.start()
 
                 input_handler = Input(admin)

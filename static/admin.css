@@ -39,6 +39,11 @@ html, body {
     color: #555353;
 }
 
+.resetting {
+    font-size: 4vw;
+    color: #aa0000
+}
+
 .large_title {
     font-size: 4vw;
 }

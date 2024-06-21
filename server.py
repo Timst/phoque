@@ -7,7 +7,6 @@ from flask import Flask, Response, render_template
 from humanfriendly import format_timespan
 
 from admin import Admin
-from database import Database
 
 class EndpointAction:
     def __init__(self, action):
@@ -21,20 +20,19 @@ class EndpointAction:
 
 class Server:
     app = Flask(__name__)
-    database: Database
     admin: Admin
     stop_event: Event
 
     lock: Lock
     thread: Thread
 
-    def __init__(self, database: Database, admin: Admin):
-        self.database = database
+    def __init__(self, admin: Admin):
         self.admin = admin
 
         self.add_endpoint(endpoint="/admin", endpoint_name="admin", handler=self.admin_route)
         self.add_endpoint(endpoint="/public", endpoint_name="public", handler=self.public_route)
         self.add_endpoint(endpoint="/latest-call", endpoint_name="latest", handler=self.latest_route)
+        self.add_endpoint(endpoint="/wait", endpoint_name="wait", handler=self.wait_route)
 
         self.thread = None
         self.stop_event = Event()
@@ -83,7 +81,8 @@ class Server:
                 time_per_crepe=time_per_crepe,
                 depth=stats.depth,
                 wait=wait,
-                remaining=remaining)
+                remaining=remaining,
+                resetting="Resetting..." if stats.resetting else  "")
 
     def public_route(self):
         '''Page to be displayed on the PA system'''
@@ -95,9 +94,19 @@ class Server:
         '''Get the latest called ticket number'''
         assert self.thread is not None
         with self.lock:
-            latest_call =  self.database.get_latest_called_ticket()
+            latest_call =  self.admin.get_stats().current
 
             if latest_call is None:
                 return "Welcome!"
             else:
                 return str(latest_call)
+
+    def wait_route(self):
+        '''Get the waiting time (as a human-readable string)'''
+        assert self.thread is not None
+        with self.lock:
+            stats = self.admin.get_stats()
+            if stats.wait is not None and stats.wait.total_seconds() > 0:
+                return format_timespan(stats.wait.total_seconds(), detailed=False, max_units=1)
+            else:
+                return "No wait!"
