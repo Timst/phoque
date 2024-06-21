@@ -71,7 +71,9 @@ class Admin:
 
     def call(self, remind):
         '''Make a voice announcement and update called ticket (don't update if remind = true)'''
+
         logging.info("Calling ticket")
+        number = None
 
         if not remind:
             number = self.database.call()
@@ -96,5 +98,6 @@ class Admin:
         self.resetting = reset
 
     def reset(self):
+        '''Switch to a new session'''
         logging.info("Resetting the counts")
         self.database.reset()
