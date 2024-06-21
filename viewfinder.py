@@ -3,7 +3,11 @@
 import logging
 from threading import Thread
 
-import cv2
+# pylint: disable=no-name-in-module
+from cv2 import startWindowThread, namedWindow, setWindowProperty, WND_PROP_FULLSCREEN, WINDOW_FULLSCREEN
+from cv2 import copyMakeBorder, addWeighted, flip, imread, imshow, IMREAD_UNCHANGED, BORDER_CONSTANT
+# pylint: enable=no-name-in-module
+
 import numpy as np
 from pynput.keyboard import Listener
 
@@ -34,16 +38,16 @@ class Viewfinder:
         self.running = True
 
         logging.debug("Retrieving decal pictures")
-        self.halo = cv2.imread("/root/phoque/assets/img/halo.png", cv2.IMREAD_UNCHANGED)
-        self.horns = cv2.imread("/root/phoque/assets/img/horns.png", cv2.IMREAD_UNCHANGED)
+        self.halo = imread("/root/phoque/assets/img/halo.png", IMREAD_UNCHANGED)
+        self.horns = imread("/root/phoque/assets/img/horns.png", IMREAD_UNCHANGED)
         self.decal = self.halo
 
         self.alpha = np.full((self.HEIGHT, self.WIDTH), 128, dtype=np.uint8)
 
         logging.debug("Opening preview window")
-        cv2.startWindowThread()
-        cv2.namedWindow(self.WINDOW_NAME, cv2.WND_PROP_FULLSCREEN)
-        cv2.setWindowProperty(self.WINDOW_NAME, cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
+        startWindowThread()
+        namedWindow(self.WINDOW_NAME, WND_PROP_FULLSCREEN)
+        setWindowProperty(self.WINDOW_NAME, WND_PROP_FULLSCREEN, WINDOW_FULLSCREEN)
         logging.debug("Rendering")
 
         self.key_thread = Thread(target=self.listen_for_input)
@@ -60,22 +64,22 @@ class Viewfinder:
 
             # Add a border to fill the screen
             margin = int((self.WIDTH - frame.shape[1]) / 2)
-            bordered = cv2.copyMakeBorder(src=frame, top=0, bottom=0, left=margin, right=margin, borderType=cv2.BORDER_CONSTANT)
+            bordered = copyMakeBorder(src=frame, top=0, bottom=0, left=margin, right=margin, borderType=BORDER_CONSTANT)
 
             # Add alpha layer (missing from video still)
             bordered_with_alpha = np.dstack((bordered, self.alpha))
 
             # Combine photo and decal
-            combined = cv2.addWeighted(bordered_with_alpha, 1, self.decal , 1, 0)
+            combined = addWeighted(bordered_with_alpha, 1, self.decal , 1, 0)
 
             # Mirror image
-            flip = cv2.flip(combined, 1)
+            flipped = flip(combined, 1)
 
             # Display composite image on screen
-            cv2.imshow(self.WINDOW_NAME, flip)
+            imshow(self.WINDOW_NAME, flipped)
 
             # Remove the border to restore original image dimension
-            cropped = flip[0:flip.shape[0], margin:flip.shape[1] - margin, 0:flip.shape[2]]
+            cropped = flipped[0:flipped.shape[0], margin:flipped.shape[1] - margin, 0:flipped.shape[2]]
 
             # Make modified image available for print
             self.camera.set_edited_image(cropped)

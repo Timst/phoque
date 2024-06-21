@@ -21,16 +21,16 @@ class EndpointAction:
 
 class Server:
     app = Flask(__name__)
-    db: Database
+    database: Database
     admin: Admin
     stop_event: Event
 
     lock: Lock
     thread: Thread
 
-    def __init__(self, db: Database):
-        self.db = db
-        self.admin = Admin(db)
+    def __init__(self, database: Database, admin: Admin):
+        self.database = database
+        self.admin = admin
 
         self.add_endpoint(endpoint="/admin", endpoint_name="admin", handler=self.admin_route)
         self.add_endpoint(endpoint="/public", endpoint_name="public", handler=self.public_route)
@@ -47,6 +47,7 @@ class Server:
     def start(self):
         '''Start Flask server thread'''
         logging.info("Starting Flask server...")
+
         assert self.thread is None
         self.stop_event.clear()
         self.thread = Thread(target=self.run)
@@ -94,7 +95,7 @@ class Server:
         '''Get the latest called ticket number'''
         assert self.thread is not None
         with self.lock:
-            latest_call =  self.db.get_latest_called_ticket()
+            latest_call =  self.database.get_latest_called_ticket()
 
             if latest_call is None:
                 return "Welcome!"

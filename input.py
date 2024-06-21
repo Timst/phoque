@@ -6,16 +6,17 @@ from datetime import datetime
 
 from pynput.keyboard import Listener
 
-from database import Database
+from admin import Admin
+
 
 class Input:
-    db: Database
+    admin: Admin
     thread: Thread
     last_pressed_key = None
     reset_timer: datetime
 
-    def __init__(self, db: Database):
-        self.db = db
+    def __init__(self, admin: Admin):
+        self.admin = admin
 
     def start(self):
         '''Start listening for input (on dedicated thread)'''
@@ -32,8 +33,7 @@ class Input:
         '''Handle keypress events'''
         if hasattr(key, "char"):
             if key.char == "q":
-                logging.info("Calling ticket")
-                self.db.call()
+                self.admin.call()
             elif key.char == "d" and self.last_pressed_key != "d":
                 logging.debug("Starting reset timer...")
                 self.reset_timer = datetime.now()

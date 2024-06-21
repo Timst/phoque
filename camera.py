@@ -2,7 +2,10 @@
 from threading import Thread, Event, Lock
 import logging
 
+# pylint: disable=no-name-in-module
 from cv2 import VideoCapture, cvtColor, CAP_PROP_EXPOSURE, COLOR_RGB2GRAY
+# pylint: enable=no-name-in-module
+
 from PIL import Image
 from numpy import ndarray
 

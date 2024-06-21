@@ -49,8 +49,10 @@ class Database:
                 if ticket is not None:
                     ticket.TIMESTAMP_CALLED = datetime.now()
                     session.commit()
+                    return to_call
                 else:
                     logging.warning(f"No number to call, {last_called} is current.")
+                    return None
 
     def get_latest_ticket_number(self):
         '''Get newest ticket number, or 0 if there are no tickets'''

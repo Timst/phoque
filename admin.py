@@ -1,7 +1,14 @@
 '''Compute values for the Admin panel'''
 
+import logging
 from dataclasses import dataclass
 from datetime import timedelta, datetime, date, time
+from time import sleep
+
+from playsound import playsound
+from pyttsx3 import Engine, init as tts_init
+from pyttsx3.voice import Voice
+
 from database import Database
 
 @dataclass
@@ -14,17 +21,26 @@ class Stats:
     remaining: timedelta
 
 class Admin:
-    db: Database
+    database: Database
     end_of_shift = datetime.combine(date.today(), time(23, 00, 00))
     reset_timer = None
 
-    def __init__(self, db: Database):
-        self.db = db
+    engine: Engine
+    english: Voice
+    french: Voice
+
+    def __init__(self, database: Database):
+        self.database = database
+        self.engine = tts_init()
+        self.engine.setProperty('rate', 130)
+        voices = self.engine.getProperty('voices')
+        self.english = next(filter(lambda x: x.name == "english-us", voices))
+        self.french = next(filter(lambda x: x.name == "french", voices))
 
     def get_stats(self):
         '''Return various data on the state of the queue'''
-        current = self.db.get_latest_called_ticket()
-        top = self.db.get_latest_ticket_number()
+        current = self.database.get_latest_called_ticket()
+        top = self.database.get_latest_ticket_number()
 
         if current is None:
             current = 0
@@ -32,7 +48,7 @@ class Admin:
         depth = top - current
         remaining = self.end_of_shift - datetime.now()
 
-        samples = self.db.get_called_tickets_sample()
+        samples = self.database.get_called_tickets_sample()
 
         time_per_crepe = None
         wait = None
@@ -46,3 +62,24 @@ class Admin:
             wait = time_per_crepe * depth
 
         return Stats(current, top, depth, time_per_crepe, wait, remaining)
+
+    def call(self):
+        '''Make a voice announcement and update called ticket'''
+        logging.info("Calling ticket")
+
+        number = self.database.call()
+
+        if number is not None:
+            playsound("assets/sounds/jingle.wav")
+
+            sleep(0.3)
+
+            self.engine.setProperty('voice', self.english.id)
+            self.engine.say(f"Number {number}")
+            self.engine.runAndWait()
+
+            sleep(0.3)
+
+            self.engine.setProperty('voice', self.french.id)
+            self.engine.say(f"Numéro {number}")
+            self.engine.runAndWait()

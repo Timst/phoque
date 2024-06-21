@@ -14,6 +14,7 @@ from viewfinder import Viewfinder
 from server import Server
 from printer import Printer
 from composer import Composer, Mode
+from admin import Admin
 
 @click.command()
 @click.option("--number", "-n", default=None, help="Override for the ticket number")
@@ -31,6 +32,7 @@ def main(number, reset, mode):
     )
 
     database = Database()
+    admin = Admin(database)
 
     if reset:
         logging.info("Resetting count")
@@ -56,10 +58,10 @@ def main(number, reset, mode):
                 display = Viewfinder(camera)
                 display.start()
             elif print_mode == Mode.TICKET:
-                server = Server(database)
+                server = Server(database, admin)
                 server.start()
 
-                input_handler = Input(database)
+                input_handler = Input(admin)
                 input_handler.start()
 
             logging.info("Initialization complete")
