@@ -6,7 +6,7 @@ from datetime import datetime
 
 from pynput.keyboard import Listener
 
-from admin import Admin
+from admin import Admin, CallType
 
 
 class Input:
@@ -32,10 +32,15 @@ class Input:
     def on_press(self, key):
         '''Handle keypress events'''
         if hasattr(key, "char"):
-            if key.char == "q":
-                self.admin.call(remind=False)
-            elif key.char == "d" and self.last_pressed_key != "d":
-                logging.debug("Starting reset timer...")
+            logging.debug(f"Key: {key.char}")
+            if key.char == "d":
+                self.admin.call(type=CallType.CALL)
+            if key.char == "f":
+                self.admin.call(type=CallType.REMIND)
+            if key.char == "g":
+                self.admin.call(type=CallType.SKIP)
+            elif key.char == "h" and self.last_pressed_key != "h":
+                logging.info("Starting reset timer...")
                 self.admin.set_resetting(True)
                 self.reset_timer = datetime.now()
 
@@ -45,7 +50,7 @@ class Input:
     def on_release(self, key):
         '''Handle keyrelease events'''
         if hasattr(key, "char"):
-            if key.char == "d":
+            if key.char == "h" and self.reset_timer is not None:
                 timer = (datetime.now() - self.reset_timer).total_seconds()
                 logging.debug(f"Reset timer: {timer}")
                 self.admin.set_resetting(False)

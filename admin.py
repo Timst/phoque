@@ -1,6 +1,7 @@
 '''Compute values for the Admin panel'''
 
 import logging
+from enum import Enum
 from dataclasses import dataclass
 from datetime import timedelta, datetime, date, time
 from time import sleep
@@ -11,6 +12,11 @@ from pyttsx3.voice import Voice
 from cachetools import cached, TTLCache
 
 from database import Database
+
+class CallType(Enum):
+    CALL = 1
+    REMIND = 2
+    SKIP = 3
 
 @dataclass
 class Stats:
@@ -69,16 +75,18 @@ class Admin:
 
         return Stats(current, top, depth, time_per_crepe, wait, remaining, self.resetting)
 
-    def call(self, remind):
-        '''Make a voice announcement and update called ticket (don't update if remind = true)'''
-
-        logging.info("Calling ticket")
+    def call(self, type: CallType):
+        '''Make a voice announcement (if calling or reminding) and update called ticket (if calling or skipping)'''
         number = None
 
-        if not remind:
+        if type == CallType.REMIND:
+            number = self.database.get_latest_called_ticket()
+        else:
             number = self.database.call()
 
-        if number is not None:
+        logging.info(f"{'Calling' if type == CallType.CALL else 'Pinging' if type == CallType.REMIND else 'Skipping to'} ticket {number}")
+
+        if number is not None and type != CallType.SKIP:
             playsound("assets/sounds/jingle.wav")
 
             sleep(0.3)
