@@ -29,7 +29,7 @@ html, body {
 .bottom {
     display: grid;
     width: 100%;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     justify-content: center;
     align-items: center;
     height: 20%;
@@ -39,7 +39,7 @@ html, body {
     color: #555353;
 }
 
-.resetting {
+.status {
     font-size: 4vw;
     color: #aa0000
 }

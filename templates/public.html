@@ -1,8 +1,14 @@
 <!doctype html>
 <link rel="stylesheet" href="{{ url_for('static', filename='public.css') }}">
 <script src="{{ url_for('static', filename='htmx.min.js') }}"></script>
-<div>
-    <span class="title">Current number</span>
-    <span class="number" hx-get="/latest-call" hx-trigger="every 1s"></span>
-    <span class="wait">Estimated wait: <span class="wait-number" hx-get="/wait" hx-trigger="every 1s" /></span>
-</div>
+
+<body hx-get="/public" hx-trigger="every 1s" hx-swap="outerHTML">
+    <div>
+        <span class="{{status_style}}">{{status}}</span>
+        {% if open %}
+        <span class="title">Current number</span>
+        <span class="number">{{number}}</span>
+        <span class="wait">Estimated wait: <span class="wait-number">{{wait}}</span>
+        {% endif %}
+    </div>
+</body>

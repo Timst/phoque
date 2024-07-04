@@ -1,6 +1,5 @@
 '''Generate tickets/photos'''
 
-import time
 from datetime import datetime
 from enum import Enum
 import logging
@@ -16,7 +15,6 @@ class Mode(Enum):
     TICKET = 1
     PHOTO = 2
 
-
 class Composer:
     '''Generate tickets/photos'''
     TEMP_FILE = "/var/tmp/temp.jpg"
@@ -24,42 +22,34 @@ class Composer:
     NUMBER_SIZE = 160
 
     database: Database
-    number: int
-    last_print_timestamp: float
+    camera: Camera
+    printer: Printer
+    mode: Mode
 
-    def __init__(self, database: Database):
-        self.number = None
+    def __init__(self, database: Database, camera: Camera, printer: Printer, mode: Mode):
+
         self.database = database
-        self.last_print_timestamp = None
+        self.camera = camera
+        self.printer = printer
+        self.mode = mode
 
-    def make_ticket(self, forced_number: int, camera: Camera, printer: Printer, mode: Mode):
-        '''Start generating a ticket and send it for printing'''
-        logging.debug(f"Last timestamp: {self.last_print_timestamp}, " +
-                      f"current time: {time.time()}, " +
-                      f"diff: {'' if self.last_print_timestamp is None else time.time() - self.last_print_timestamp}")
+    def make_ticket(self, number):
+        '''Start generating a ticket'''
+        result = False
 
-        if self.last_print_timestamp is not None and time.time() - self.last_print_timestamp < 1:
-            logging.warning("Throttling call.")
+        if self.mode == Mode.TICKET:
+            result = self.generate_ticket(number)
+        elif self.mode == Mode.PHOTO:
+            result = self.generate_photo()
         else:
-            result = False
+            logging.error("Unsupported mode")
 
-            self.last_print_timestamp = time.time()
+        if result:
+            self.printer.print(self.TEMP_FILE)
+        else:
+            logging.warning("No picture available yet")
 
-            if mode == Mode.TICKET:
-                result = self.generate_ticket(forced_number, camera)
-            elif mode == Mode.PHOTO:
-                result = self.generate_photo(camera)
-            else:
-                logging.error("Unsupported mode")
-
-            if result:
-                printer.print(self.TEMP_FILE)
-                if mode == Mode.TICKET:
-                    self.increment_number()
-            else:
-                logging.warning("No picture available yet")
-
-    def generate_ticket(self, forced_number: int, camera: Camera) -> bool:
+    def generate_ticket(self, number) -> bool:
         '''Generate a (queue) ticket'''
         title_font_family = "/usr/local/share/fonts/unispace bd.ttf"
         body_font_family = "/usr/local/share/fonts/unispace rg.ttf"
@@ -74,26 +64,12 @@ class Composer:
 
         draw.text((20, 18), "Welcome to Crêpiphany", font = title_font)
 
-        ticket_number = forced_number
+        logging.info(f"Printing ticket #{number}")
 
-        if forced_number is not None:
-            ticket_number = forced_number
-        elif self.number is None:
-            db_number = self.database.get_latest_ticket_number()
-            if db_number is None:
-                self.number = 1
-            else:
-                self.number = self.database.get_latest_ticket_number() + 1
-            ticket_number = self.number
-        else:
-            ticket_number = self.number
-
-        logging.info(f"Printing ticket #{ticket_number}")
-
-        digits = len(str(ticket_number))
+        digits = len(str(number))
 
         draw.text((225, 590), "You are number", font=body_font)
-        draw.text((390 - (digits * (self.NUMBER_SIZE/4)), 645), str(ticket_number), font=number_font)
+        draw.text((390 - (digits * (self.NUMBER_SIZE/4)), 645), str(number), font=number_font)
 
         left_text = Image.new("L", (520, 50), 255)
         left_text_draw = ImageDraw.Draw(left_text)
@@ -109,7 +85,7 @@ class Composer:
         image.paste(rotated_left_text, (16, 97))
         image.paste(rotated_right_text, (733, 135))
 
-        pic = camera.get_latest_image(False)
+        pic = self.camera.get_latest_image(False)
 
         if pic is not None:
             image.paste(pic, (80,95))
@@ -120,7 +96,7 @@ class Composer:
         else:
             return False
 
-    def generate_photo(self, camera: Camera) -> bool:
+    def generate_photo(self) -> bool:
         '''Generate a (photobooth) ticket'''
         image = Image.new("L", (800, 650), 255)
         draw = ImageDraw.Draw(image)
@@ -131,7 +107,7 @@ class Composer:
 
         logging.info("Printing photo")
 
-        pic = camera.get_latest_image(True)
+        pic = self.camera.get_latest_image(True)
 
         if pic is not None:
             image.paste(pic, (80,130))
@@ -141,8 +117,3 @@ class Composer:
             return True
         else:
             return False
-
-    def increment_number(self):
-        '''Increment the ticket number'''
-        self.database.insert(self.number)
-        self.number += 1

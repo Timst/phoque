@@ -20,13 +20,38 @@ div {
     color: #03163a;
 }
 
+.last_call {
+    font-size: 6vw;
+    color: #e43333;
+    margin-bottom: 20px;
+    animation: blinker 1s step-start infinite;
+}
+
+.finishing {
+    font-size: 3vw;
+    color: #e43333;
+    margin-bottom: 20px;
+}
+
+.closed {
+    font-size: 4vw;
+    color: #475a7c;
+    margin-bottom: 20px;
+}
+
+@keyframes blinker {
+    50% {
+        color: #b00d0d;
+    }
+  }
+
 .title {
     font-size: 5vw;
     color: #475a7c;
 }
 
 .wait {
-    font-size: 3vw;
+    font-size: 3.5vw;
     color: #475a7c;
 }
 

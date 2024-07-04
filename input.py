@@ -14,6 +14,7 @@ class Input:
     thread: Thread
     last_pressed_key = None
     reset_timer: datetime
+    switch_timer: datetime
 
     def __init__(self, admin: Admin):
         self.admin = admin
@@ -33,12 +34,18 @@ class Input:
         '''Handle keypress events'''
         if hasattr(key, "char"):
             logging.debug(f"Key: {key.char}")
+
             if key.char == "d":
-                self.admin.call(type=CallType.CALL)
+                self.admin.call(call_type=CallType.CALL)
+
             if key.char == "f":
-                self.admin.call(type=CallType.REMIND)
-            if key.char == "g":
-                self.admin.call(type=CallType.SKIP)
+                self.admin.call(call_type=CallType.REMIND)
+
+            if key.char == "g" and self.last_pressed_key != "g":
+                logging.info("Starting switch timer...")
+                self.admin.set_switching(True)
+                self.switch_timer = datetime.now()
+
             elif key.char == "h" and self.last_pressed_key != "h":
                 logging.info("Starting reset timer...")
                 self.admin.set_resetting(True)
@@ -58,5 +65,14 @@ class Input:
                 if timer > 3:
                     logging.info("Resetting data")
                     self.admin.reset()
+
+            if key.char == "g" and self.switch_timer is not None:
+                timer = (datetime.now() - self.switch_timer).total_seconds()
+                logging.debug(f"Switch timer: {timer}")
+                self.admin.set_switching(False)
+
+                if timer > 3:
+                    logging.info("Switching mode")
+                    self.admin.switch()
 
             self.last_pressed_key = None

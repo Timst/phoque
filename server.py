@@ -6,7 +6,7 @@ import logging
 from flask import Flask, Response, render_template
 from humanfriendly import format_timespan
 
-from admin import Admin
+from admin import Admin, OpenState
 
 class EndpointAction:
     def __init__(self, action):
@@ -31,8 +31,6 @@ class Server:
 
         self.add_endpoint(endpoint="/admin", endpoint_name="admin", handler=self.admin_route)
         self.add_endpoint(endpoint="/public", endpoint_name="public", handler=self.public_route)
-        self.add_endpoint(endpoint="/latest-call", endpoint_name="latest", handler=self.latest_route)
-        self.add_endpoint(endpoint="/wait", endpoint_name="wait", handler=self.wait_route)
 
         self.thread = None
         self.stop_event = Event()
@@ -74,6 +72,13 @@ class Server:
 
             remaining = format_timespan(stats.remaining.total_seconds(), detailed=False, max_units=1)
 
+            status = ""
+
+            if stats.resetting:
+                status = "Resetting..."
+            elif stats.switching:
+                status = f"Switching to {stats.state.next().name}..."
+
             return render_template(
                 'admin.html',
                 current=stats.current,
@@ -82,31 +87,34 @@ class Server:
                 depth=stats.depth,
                 wait=wait,
                 remaining=remaining,
-                resetting="Resetting..." if stats.resetting else  "")
+                status=status,
+                state=stats.state.name)
 
     def public_route(self):
         '''Page to be displayed on the PA system'''
         assert self.thread is not None
         with self.lock:
-            return render_template('public.html', number=147)
-
-    def latest_route(self):
-        '''Get the latest called ticket number'''
-        assert self.thread is not None
-        with self.lock:
-            latest_call =  self.admin.get_stats().current
-
-            if latest_call is None:
-                return "Welcome!"
-            else:
-                return str(latest_call)
-
-    def wait_route(self):
-        '''Get the waiting time (as a human-readable string)'''
-        assert self.thread is not None
-        with self.lock:
             stats = self.admin.get_stats()
+
+            number = stats.current
+            wait = "No wait!"
+
             if stats.wait is not None and stats.wait.total_seconds() > 0:
-                return format_timespan(stats.wait.total_seconds(), detailed=False, max_units=1)
-            else:
-                return "No wait!"
+                wait = format_timespan(stats.wait.total_seconds(), detailed=False, max_units=1)
+
+            status = ""
+
+            if stats.state == OpenState.LAST_CALL:
+                status = "Last call! Get your ticket now!"
+            elif stats.state == OpenState.FINISHING:
+                status = "Crêpiphany is closing for the day, but if you're in line, stay in line!"
+            elif stats.state == OpenState.CLOSED:
+                status = "Crêpiphany is closed! See you tomorow at 11:00 :)"
+
+            return render_template(
+                'public.html',
+                number=number,
+                wait=wait,
+                status=status,
+                status_style=stats.state.name.lower(),
+                open=stats.state != OpenState.CLOSED)
