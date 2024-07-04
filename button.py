@@ -3,15 +3,15 @@
 import logging
 import time
 
-from admin import Admin
-from composer import Composer
 from gpiozero import Button as GpioButton
 
+from admin import Admin
+from composer import Composer
 
 class Button:
     composer: Composer
     admin: Admin
-    
+
     button: GpioButton
 
     last_press_timestamp: float
@@ -21,12 +21,13 @@ class Button:
         self.admin = admin
         self.button = GpioButton(23)
         self.last_press_timestamp = None
-    
+
     def listen(self):
         '''Listen for button taps'''
         self.button.when_released = self.snap
 
     def snap(self):
+        '''Handle button taps'''
         logging.debug("Snap")
 
         logging.debug(f"Last timestamp: {self.last_press_timestamp}, " +

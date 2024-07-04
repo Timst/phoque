@@ -62,4 +62,4 @@ def main(reset, mode):
             pause()
 
 if __name__ == '__main__':
-    main(None, False, "TICKET")
+    main(False, "TICKET")
