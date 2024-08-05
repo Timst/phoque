@@ -5,6 +5,8 @@ from enum import Enum
 from dataclasses import dataclass
 from datetime import timedelta, datetime, date, time
 from time import sleep
+import shutil
+from os import makedirs
 
 from playsound import playsound
 from pyttsx3 import Engine, init as tts_init
@@ -12,6 +14,7 @@ from pyttsx3.voice import Voice
 from cachetools import cached, TTLCache
 
 from database import Database
+from composer import PHOTO_FOLDER
 
 class CallType(Enum):
     CALL = 1
@@ -147,6 +150,10 @@ class Admin:
         '''Switch to a new session'''
         logging.info("Resetting the counts")
         self.database.reset()
+
+        logging.info("Recreating photo folder")
+        shutil.rmtree(PHOTO_FOLDER)
+        makedirs(PHOTO_FOLDER)
 
     def switch(self):
         '''Switch to the next mode'''

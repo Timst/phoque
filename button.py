@@ -34,11 +34,12 @@ class Button:
                       f"current time: {time.time()}, " +
                       f"diff: {'' if self.last_press_timestamp is None else time.time() - self.last_press_timestamp}")
 
-        if self.last_press_timestamp is not None and time.time() - self.last_press_timestamp < 0.5:
+        if self.last_press_timestamp is not None and time.time() - self.last_press_timestamp < 1:
             logging.warning("Throttling call.")
         else:
-            self.last_press_timestamp = time.time()
             new_ticket =  self.admin.add()
 
             if new_ticket is not None:
                 self.composer.make_ticket(new_ticket)
+
+        self.last_press_timestamp = time.time()

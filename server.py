@@ -7,6 +7,7 @@ from flask import Flask, Response, render_template
 from humanfriendly import format_timespan
 
 from admin import Admin, OpenState
+from composer import PHOTO_FOLDER
 
 class EndpointAction:
     def __init__(self, action):

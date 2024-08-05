@@ -10,6 +10,8 @@ from camera import Camera
 from printer import Printer
 from database import Database
 
+PHOTO_FOLDER = "/root/phoque/static/photos/"
+
 class Mode(Enum):
     '''Phoque operating mode (photobooth or ticket machine)'''
     TICKET = 1
@@ -18,6 +20,7 @@ class Mode(Enum):
 class Composer:
     '''Generate tickets/photos'''
     TEMP_FILE = "/var/tmp/temp.jpg"
+
     NUMBER_CACHE = "cache"
     NUMBER_SIZE = 160
 
@@ -53,16 +56,18 @@ class Composer:
         '''Generate a (queue) ticket'''
         title_font_family = "/usr/local/share/fonts/unispace bd.ttf"
         body_font_family = "/usr/local/share/fonts/unispace rg.ttf"
+        italic_font_family = "/usr/local/share/fonts/unispace it.ttf"
 
-        image = Image.new("L", (800, 800), 255)
+        image = Image.new("L", (800, 900), 255)
         draw = ImageDraw.Draw(image)
 
         title_font = ImageFont.truetype(title_font_family, 58)
         body_font = ImageFont.truetype(body_font_family, 46)
         side_text_font = ImageFont.truetype(body_font_family, 40)
         number_font = ImageFont.truetype(body_font_family, self.NUMBER_SIZE)
+        menu_font = ImageFont.truetype(italic_font_family, 45)
 
-        draw.text((20, 18), "Welcome to Crêpiphany", font = title_font)
+        draw.text((30, 18), "Welcome to Crêpiphany", font = title_font)
 
         logging.info(f"Printing ticket #{number}")
 
@@ -71,9 +76,11 @@ class Composer:
         draw.text((225, 590), "You are number", font=body_font)
         draw.text((390 - (digits * (self.NUMBER_SIZE/4)), 645), str(number), font=number_font)
 
-        left_text = Image.new("L", (520, 50), 255)
+        draw.text((80, 855), "Ask for the secret menu!", font=menu_font)
+
+        left_text = Image.new("L", (480, 50), 255)
         left_text_draw = ImageDraw.Draw(left_text)
-        left_text_draw.text((0, 0), "2024 Fundraiser", font=side_text_font)
+        left_text_draw.text((0, 0), "Black Rock City 2024", font=side_text_font)
         rotated_left_text = left_text.rotate(90, expand=True)
 
         right_text = Image.new("L", (520, 50), 255)
@@ -82,7 +89,7 @@ class Composer:
         right_text_draw.text((0, 0), formatted_time, font=side_text_font)
         rotated_right_text = right_text.rotate(270, expand=True)
 
-        image.paste(rotated_left_text, (16, 97))
+        image.paste(rotated_left_text, (16, 100))
         image.paste(rotated_right_text, (733, 135))
 
         pic = self.camera.get_latest_image(False)
@@ -91,7 +98,10 @@ class Composer:
             image.paste(pic, (80,95))
 
             image.save(self.TEMP_FILE)
-            logging.debug("Image saved")
+
+            file_path = f"{PHOTO_FOLDER}{number}.jpg"
+            pic.save(file_path)
+            logging.debug(f"Pic saved to: {file_path}")
             return True
         else:
             return False

@@ -3,7 +3,7 @@ from threading import Thread, Event, Lock
 import logging
 
 # pylint: disable=no-name-in-module
-from cv2 import VideoCapture, cvtColor, CAP_PROP_EXPOSURE, COLOR_RGB2GRAY
+from cv2 import VideoCapture, cvtColor, threshold, CAP_PROP_EXPOSURE, COLOR_RGB2GRAY, THRESH_BINARY, THRESH_OTSU
 # pylint: enable=no-name-in-module
 
 from PIL import Image
@@ -83,6 +83,7 @@ class Camera:
 
     def __generate_image(self, frame):
         '''Process an image'''
-        bw_frame = cvtColor(frame, COLOR_RGB2GRAY)
+        gray_frame = cvtColor(frame, COLOR_RGB2GRAY)
+        (thresh, bw_frame) = threshold(gray_frame, 128, 255, THRESH_BINARY | THRESH_OTSU)
         with self.lock:
             return Image.fromarray(bw_frame)

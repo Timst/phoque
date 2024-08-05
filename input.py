@@ -62,7 +62,7 @@ class Input:
                 logging.debug(f"Reset timer: {timer}")
                 self.admin.set_resetting(False)
 
-                if timer > 3:
+                if timer > 2:
                     logging.info("Resetting data")
                     self.admin.reset()
 
@@ -71,7 +71,7 @@ class Input:
                 logging.debug(f"Switch timer: {timer}")
                 self.admin.set_switching(False)
 
-                if timer > 3:
+                if timer > 2:
                     logging.info("Switching mode")
                     self.admin.switch()
 
