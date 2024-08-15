@@ -14,7 +14,6 @@ from pyttsx3.voice import Voice
 from cachetools import cached, TTLCache
 
 from database import Database
-from composer import PHOTO_FOLDER
 
 class CallType(Enum):
     CALL = 1
@@ -151,9 +150,9 @@ class Admin:
         logging.info("Resetting the counts")
         self.database.reset()
 
-        logging.info("Recreating photo folder")
-        shutil.rmtree(PHOTO_FOLDER)
-        makedirs(PHOTO_FOLDER)
+        # logging.info("Recreating photo folder")
+        # shutil.rmtree(PHOTO_FOLDER)
+        # makedirs(PHOTO_FOLDER)
 
     def switch(self):
         '''Switch to the next mode'''

@@ -19,7 +19,7 @@ class Mode(Enum):
 
 class Composer:
     '''Generate tickets/photos'''
-    TEMP_FILE = "/var/tmp/temp.jpg"
+    TEMP_FILE = "/dev/shm/temp.jpg"
 
     NUMBER_CACHE = "cache"
     NUMBER_SIZE = 160
@@ -99,9 +99,9 @@ class Composer:
 
             image.save(self.TEMP_FILE)
 
-            file_path = f"{PHOTO_FOLDER}{number}.jpg"
-            pic.save(file_path)
-            logging.debug(f"Pic saved to: {file_path}")
+            # file_path = f"{PHOTO_FOLDER}{number}.jpg"
+            # pic.save(file_path)
+            # logging.debug(f"Pic saved to: {file_path}")
             return True
         else:
             return False
