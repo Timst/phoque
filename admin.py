@@ -5,8 +5,6 @@ from enum import Enum
 from dataclasses import dataclass
 from datetime import timedelta, datetime, date, time
 from time import sleep
-import shutil
-from os import makedirs
 
 from playsound import playsound
 from pyttsx3 import Engine, init as tts_init
