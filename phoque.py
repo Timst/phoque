@@ -3,6 +3,7 @@
 import logging
 from time import sleep
 from signal import pause
+import subprocess
 
 import click
 
@@ -56,6 +57,8 @@ def main(reset, mode):
 
                 input_handler = Input(admin)
                 input_handler.start()
+
+                subprocess.run("firefox-esr")
 
             logging.info("Initialization complete")
 
