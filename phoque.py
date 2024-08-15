@@ -58,7 +58,19 @@ def main(reset, mode):
                 input_handler = Input(admin)
                 input_handler.start()
 
-                subprocess.run("firefox-esr")
+                subprocess.Popen(["/usr/bin/firefox-esr"])
+
+                window_ids = []
+
+                while len(window_ids) < 2:
+                    logging.debug("Looking for browser windows...")
+                    window_ids = [e for e in subprocess.check_output(["/bin/bash", "-c", "(wmctrl -l | grep Firefox | cut -d \" \" -f 1) || true"]).decode().split("\n") if e]
+                    sleep(1)
+
+                logging.debug("Found browser windows")
+
+                for id in window_ids:
+                    subprocess.Popen(["/usr/bin/wmctrl", "-i", "-r", id, "-b", "add,fullscreen"])
 
             logging.info("Initialization complete")
 
