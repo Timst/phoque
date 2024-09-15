@@ -32,7 +32,7 @@ This is meant to run on a Rasperry Pi. I've been using a Pi 4B, this would likel
 
 Besides that, the big items you'll need is a button ([that's the one I use](https://www.amazon.com/gp/product/B00XRC9URW/)), a webcam (anything will do, I use this logitech cam that everybody has), a thermal receipt printer (that's the most specialized and expensive piece of kit; I use this [MUNBYN](https://www.amazon.com/dp/B0779WGYHS) printer), a keyboard, and maybe a couple of screens.
 
-I could go through the rest of the system here, but instead let me give you the link to the "schematics" (more on a guide to putting everything together) that lists everything you need, complete with diagram and step by step instructions: https://docs.google.com/document/d/1qJzJxlinTLHUv-rM7RpuQfxlVQy0EvKh1EnHSkjROCY/edit?usp=sharing
+I could go through the rest of the system here, but instead let me give you the link to the "schematics" (more of a guide to putting everything together) that lists everything you need, complete with a diagram and step-by-step instructions: https://docs.google.com/document/d/1qJzJxlinTLHUv-rM7RpuQfxlVQy0EvKh1EnHSkjROCY/edit?usp=sharing
 
 ## Setting up
 So there's probably some stuff you need to do on your system to make all of this work. You know like uuh, installing some packages, probably some RPI-specific config and stuff. Also I think something related to CUPS quirks for this type of printer? Unfortunately I don't recall most of what I did and didn't take notes. Sorry!!! 
@@ -47,7 +47,7 @@ The system also listens for keystrokes, so careful with what you do once it's ru
 - Maintaining `g` for 2s+ switches between different modes. There are four: "open" (standard mode), "last call" (works like the standard mode, but the public screen shows a flashing message that the line is about to close), "finishing" (people can't get new tickets, but you can still call old ones), and "closed" (the whole system is suspended)
 - Maintaining `h` for 2s+ resets the count to 0. This is non-destructive: internally this starts a new session, but old numbers are still saved in DB.
 
-Rather than using a regular keyboard, I got one of these little 4-key minikeyboards. You can configure them to assign a logical key to each physical key, and then I printed some labels, and voilà.
+Rather than using a regular keyboard, I got one of these [little 4-key minikeyboards](https://www.amazon.com/gp/product/B093WJ38D9/). You can configure them to assign a logical key to each physical key, and then I printed some labels, and voilà.
 
 I also recommend turning this into a systemd service. _In theory_, that way, as soon as you start the Pi, everything should boot up on its own, including the displays. This almost never works, but hey, you know, it could.
 
@@ -60,4 +60,4 @@ Editing the ticket template is a bit of a pain, too. You have to guess at everyt
 
 As I mentioned you could use the DB to display some stats and graphs and whatnot. 
 
-At one point I toyed with saving the pictures and then display them with the number is called, so that people would pay more attention (the #1 problem with this whole thing). Eventually we veto'd the idea out of privacy concerns: this being Burning Man, we had at least one woman flash her breasts at the camera. She might or might not have consented to have them displayed in 4K on a giant screen later, so better not to risk it. It wasn't very hard to implement, and in fact I think the code is still here but commented out. There might be something there, if you can navigate the ethical issues.
+At one point I toyed with saving the pictures and then displaying them on the public screen when the number is called, so that people would pay more attention (the #1 problem with this whole thing). Eventually we veto'd the idea out of privacy concerns: this being Burning Man, we had at least one woman flash her breasts at the camera. She might or might not have consented to have them displayed in 4K on a giant screen later, so better not to risk it. It wasn't very hard to implement, and in fact I think the code is still here but commented out. There might be something there, if you can navigate the ethical issues.
